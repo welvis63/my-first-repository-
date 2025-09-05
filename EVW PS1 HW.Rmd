@@ -1,0 +1,112 @@
+---
+title: "test"
+author: "Elvis Williams"
+date: "2025-09-05"
+output:
+  pdf_document: default
+  word_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+getwd()
+read.csv("kdrama.csv")
+kdrama<-read.csv("kdrama.csv")
+#how many dramas in kdrama?
+summary(kdrama)
+#from the summary we can see that the answer is 250
+names(kdrama)
+#there are 17 variables
+mean(kdrama$"Number of Episodes")
+#the average number of episodes for every show is 19.064
+hist(kdrama$Rating)
+#this shows the frequency of ratings from lowest ratings to highest. The histogram shows a steep slope downwards as #ratings increase, demonstrating that the likelihood of getting a high rating is continually lower than getting a #low rating. 
+summary(kdrama$Rating<9)
+#this summary shows the number of ratings below and above 9 . there are 17 above 9.
+#all characters (17) under the logical category FALSE are above 9, because they are not ratings<9
+names(kdrama)[names(kdrama) == "Year.of.release"] <- "Year"
+
+table(kdrama$Name, kdrama$Year)
+library(tidyverse)
+library(ggplot2)
+kdrama_1 <- kdrama%>%
+  subset(select=c(Name,Year))
+kdrama_20_22<-kdrama_1 %>% 
+  filter(Year>2019)
+summary(kdrama_20_22$Name)
+#after creating a subset only including Shows and Years from 2020-2022, 
+#I was able to use summary to show that 106 shows came out in that range
+class(kdrama$Duration)
+#using class, I show here that Duration is a character variable
+library(dplyr)
+
+kdrama_dur<-kdrama %>% 
+  subset(select=c(Duration))
+kdrama_dur_unique<-kdrama_dur %>% distinct
+#this creates a unique subset too refer to 
+
+#<- (Duration = c("15 min.", "20 min.","24 min", "25 min.","30 min.","33 min.","35 min.","40 min.","44 min.","45 min.","50 min.","51 min.","52 min.","54 min.","55 min.","58 min.","60 min.","1 hr, 2 min.","1 hr. 3 min","1 hr. 4min.","1 hr. 5min.","1 hr. 6 min.","1 hr. 7 min.","1 hr. 8 min.","1 hr. 9 min.","1 hr. 10 min.","1 hr. 11 min.","1 hr. 13 min.","1 hr. 15 min.","1 hr. 17 min.","1 hr. 7 min.","1 hr. 20 min.","1 hr. 21 min.","1 hr. 22 min.","1 hr. 25 min.","1 hr. 30 min.","1 hr. 32 min.","1 hr. 40 min."))
+
+
+
+kdrama_0 <- kdrama %>%
+  mutate(
+    Duration_minutes = case_when(
+      # Catches "X hr Y min"
+      str_detect(Duration, "\\d+\\s*hr") & str_detect(Duration, "\\d+\\s*min") ~ 
+        as.numeric(str_extract(Duration, "\\d+(?=\\s*hr)")) * 60 + 
+        as.numeric(str_extract(Duration, "\\d+(?=\\s*min)")),
+      # Catches "X hr"
+      str_detect(Duration, "\\d+\\s*hr") ~ 
+        as.numeric(str_extract(Duration, "\\d+(?=\\s*hr)")) * 60,
+      # Catches "Y min"
+      str_detect(Duration, "\\d+\\s*min") ~ 
+        as.numeric(str_extract(Duration, "\\d+(?=\\s*min)")),
+      TRUE ~ NA_real_
+    )
+  )
+summary(kdrama_0)
+#recording Duration as a new numeric variable
+summary(kdrama_0$Duration_minutes)
+#verifying that it is in fact numeric and that it has proper values
+ggplot(kdrama_0, aes(x = Duration_minutes))+
+  geom_histogram()
+#this plot shows the frequency of duration for shows
+library(dplyr)
+kdrama_netflix<-kdrama_0 %>% 
+  subset(select=c(Original.Network,Rating))
+  summary(kdrama_netflix)
+  #creating a subset to work from
+  Kdrama_Netflix <- kdrama_netflix %>%
+  filter(!Original.Network %in% c("tvN", "Wavve", "jTBC","KBS2","MBC","SBS","OCN","Hulu","iQiyi","ENA","Olleh TV","ViuTV","AppleTV+","Disney+","Viki","Channel A","YouTube","Naver TV Cast", "MBN","Daum Kakao TV","TV Chosun","vLive","Hulu, MBC","	
+iQiyi, tvN","jTBC, Viki","	
+jTBC, Viki","OCN, tvN","	
+ENA, Olleh TV","	
+iQiyi, jTBC","KBS2, ViuTV","tvN, ViuTV","MBC, ViuTV","	
+iQiyi, tvN","iQiyi, KBS2, Viki","SBS, ViuTV","jTBC, Viki","Naver TV Cast, vLive","	
+ENA, Olleh TV","iQiyi, jTBC","iQiyi, tvN","ENA, Olleh TV","Apple TV+"))
+  #tediously filtering out all character values that don't include Netflix
+  mean(Kdrama_Netflix$Rating)
+  #this shows that the average rating for all shows that were originally aired on Netflix is 8.66
+  
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r cars}
+summary(cars)
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
